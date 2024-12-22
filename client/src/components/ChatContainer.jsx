@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { getDecodedToken } from '@/utils/auth';
 import {socket} from '@/utils/socket';
 import { useEffect, useState } from 'react';
 
@@ -29,7 +30,7 @@ const ChatContainer = ({ messages, onSendMessage }) => {
 
     if (!isTyping) {
       socket.emit('typing', {
-        senderId: localStorage.getItem('userId'),
+        senderId: getDecodedToken('jwt'),
         receiverId: "receiverUserId", // Replace with actual receiver ID
       });
     }
@@ -84,3 +85,4 @@ const ChatContainer = ({ messages, onSendMessage }) => {
     </div>
   );
 };
+export default ChatContainer;

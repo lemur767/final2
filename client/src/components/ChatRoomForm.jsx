@@ -1,12 +1,12 @@
 import { useState } from "react";
-import apiClient from "@/lib/api-client";
+import { apiClient }from "@/lib/api-client";
 
 const ChatRoomForm = ({ onRoomCreated }) => {
   const [roomName, setRoomName] = useState("");
 
   const handleCreateRoom = async () => {
     try {
-      const response = await apiClient.post('/api/room/create', { name: roomName });
+      const response = await apiClient.post('/room/create', { name: roomName });
       onRoomCreated(response.data.room); // Notify parent about the new room
       setRoomName("");
     } catch (error) {

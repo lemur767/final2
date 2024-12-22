@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { getDecodedToken } from "@/utils/auth";
 import { socket } from "@/utils/socket";
+
 const Auth = () => {
   const navigate = useNavigate();
 
@@ -121,7 +122,7 @@ const Auth = () => {
     <div className="h-[100vh] font-title bg-[#1d1528] md:shrink-0 w-[100vw] flex-row flex items-center justify-center text-[#7dca9b]">
      
       <div className=" bg-[#1d1528] font-body border-[#a816ec] border-r-4 border-solid h-full flex-grow-1 pb-12 items-center text-opacity-90 shadow-2xl  md:w-[90vw] lg:w-[70vw] xl:flex justify-center rounded-sm grid xl:grid-cols-2">
-        <div className="flex flex-col gap-10 items-center justify-center">
+        <div className="flex flex-col gap-10 items-center justify-center md:flex-row shrink-0 sm:flex-row ">
           <div className="flex items-center justify-center flex-grow-1 h-fit flex-col w-[100%]">
             <div className="flex items-center justify-center flex-col gap-10 p-4">
               <div className="flex items-center flex-row gap-4 justifty-center">
@@ -254,10 +255,10 @@ const Auth = () => {
             </div>
           </div>
         </div> 
-          
       </div> 
-      <div className="w-[90vw] bg-center bg-cover h-screen bg-no-repeat" style={{ backgroundImage: 'url("/lff_logo2.png")' }}>
-      <div className="flex flex-col items-center justify-center h-screen"></div>
+      <div className="bg-[#1d1528] flex flex-col items-center justify-center h-screen"></div>
+      <div className="w-[90vw] flex flex-grow-1 bg-center bg-cover h-screen bg-no-repeat" style={{ backgroundImage: 'url("/logo_large.png")' }}>
+      
       </div>
     </div>
   );
