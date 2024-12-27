@@ -31,7 +31,7 @@ const ContactsContainer = ({ onSelectContact }) => {
             className="p-2 mb-2 rounded-md cursor-pointer bg-[#1d1528] hover:bg-[#7dca9b] hover:text-white"
             onClick={() => onSelectContact(userId)}
           >
-            User {userId} {/* Replace with actual user details if available */}
+            User {localStorage.getItem('user')} {/* Replace with actual user details if available */}
           </div>
         ))
       ) : (

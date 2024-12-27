@@ -76,23 +76,8 @@ export const sendMessage = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-export const createRoom = async (req, res) => {
-  try {
-    const { name } = req.body;
-    const userId = req.user.id; // Assumes authentication middleware sets `req.user`
 
-    const room = new ChatRoom({
-      name,
-      creator: userId,
-      members: [userId], // Add creator to members
-    });
 
-    await room.save();
-    res.status(201).json({ message: 'Room created successfully', room });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
 export const inviteUsers = async (req, res) => {
   try {
     const { roomId, userIds } = req.body; // `userIds` is an array of user IDs

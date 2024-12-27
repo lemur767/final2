@@ -1,8 +1,9 @@
 /* eslint-disable react/prop-types */
 import { getDecodedToken } from '@/utils/auth';
-import {socket} from '@/utils/socket';
+import { socket } from '@/utils/socket';
 import { useEffect, useState } from 'react';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons'
 
 const ChatContainer = ({ messages, onSendMessage }) => {
   const [message, setMessage] = useState("");
@@ -30,7 +31,7 @@ const ChatContainer = ({ messages, onSendMessage }) => {
 
     if (!isTyping) {
       socket.emit('typing', {
-        senderId: getDecodedToken('jwt'),
+        senderId: getDecodedToken('token'),
         receiverId: "receiverUserId", // Replace with actual receiver ID
       });
     }
@@ -38,7 +39,7 @@ const ChatContainer = ({ messages, onSendMessage }) => {
     clearTimeout(window.typingTimeout);
     window.typingTimeout = setTimeout(() => {
       socket.emit('stop_typing', {
-        senderId: localStorage.getItem('userId'),
+        senderId: localStorage.getItem('user'),
         receiverId: "receiverUserId",
       });
     }, 2000);
@@ -79,7 +80,7 @@ const ChatContainer = ({ messages, onSendMessage }) => {
             setMessage(""); // Clear input
           }}
         >
-          Send
+        <FontAwesomeIcon icon={faUser} />
         </button>
       </div>
     </div>

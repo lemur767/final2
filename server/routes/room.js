@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.post('/create', authMiddleware, createRoom);
 router.delete('/delete/:roomId', authMiddleware, deleteRoom);
-router.get('/', authMiddleware, getAllRooms);
+router.get('/list', authMiddleware, getAllRooms);
 
 export default router;

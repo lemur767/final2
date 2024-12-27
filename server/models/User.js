@@ -8,7 +8,14 @@ const userSchema = new mongoose.Schema({
   username: { type: String, unique: true, required: true },
   password: { type: String, required: true },
   imageUrl: { type: String, default: '' }, // Optional, default is empty string
-}, { timestamps: true });
+  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // List of friends
+  friendRequests: [
+    {
+      sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
+    }],
+  }, 
+{ timestamps: true });
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {

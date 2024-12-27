@@ -10,6 +10,7 @@ dotenv.config();
 import authRoutes from './routes/auth.js';
 import roomRoutes from './routes/room.js';
 import chatRoutes from './routes/chat.js';
+import friendRoutes from './routes/friend.js';
 import { on } from 'events';
 
 //Cors Options
@@ -32,6 +33,8 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/room', roomRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/friend', friendRoutes);
+
 
 mongoose.connect(process.env.DB_URI)
   .then(() => console.log('MongoDB connected'))
@@ -78,31 +81,30 @@ io.on('connection', (socket) => {
   socket.on('leave_room', ({ roomId }) => {
     socket.leave(roomId);
   });
-  io.on('connection', (socket) => {
+  
     // Notify when a user starts typing
-    socket.on('typing', ({ senderId, receiverId }) => {
-      const receiverSocketId = onlineUsers[receiverId];
-      if (receiverSocketId) {
-        io.to(receiverSocketId).emit('typing', { senderId });
-      }
-    });
+  socket.on('typing', ({ senderId, receiverId }) => {
+    const receiverSocketId = onlineUsers[receiverId];
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('typing', { senderId });
+    }
+  });
   
     // Notify when a user stops typing
-    socket.on('stop_typing', ({ senderId, receiverId }) => {
-      const receiverSocketId = onlineUsers[receiverId];
-      if (receiverSocketId) {
-        io.to(receiverSocketId).emit('stop_typing', { senderId });
-      }
-    });
+  socket.on('stop_typing', ({ senderId, receiverId }) => {
+    const receiverSocketId = onlineUsers[receiverId];
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('stop_typing', { senderId });
+    }
   });
-  io.on('connection', (socket) => {
-    socket.on('invite_to_room', ({ roomId, invitedUserIds }) => {
-      invitedUserIds.forEach((userId) => {
-        const userSocketId = onlineUsers[userId];
-        if (userSocketId) {
-          io.to(userSocketId).emit('room_invitation', { roomId });
-        }
-      });
+  });
+  
+  socket.on('invite_to_room', ({ roomId, invitedUserIds }) => {
+    invitedUserIds.forEach((userId) => {
+      const userSocketId = onlineUsers[userId];
+      if (userSocketId) {
+        io.to(userSocketId).emit('room_invitation', { roomId }); 
+      }
     });
   });
     
@@ -114,7 +116,15 @@ io.on('connection', (socket) => {
         break;
       }
     }
-    io.emit('online_users', Object.keys(onlineUsers)); // Send updated list to all clients
+  io.emit('online_users', Object.keys(onlineUsers)); // Send updated list to all clients
   });
-});
-});
+    // Notify clients when a room is created
+    socket.on('room_created', (room) => {
+      io.emit('update_rooms', { action: 'create', room });
+    });
+  
+    // Notify clients when a room is deleted
+    socket.on('room_deleted', (roomId) => {
+      io.emit('update_rooms', { action: 'delete', roomId });
+    });
+  });;

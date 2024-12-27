@@ -3,8 +3,8 @@ import ChatRoom from '../models/ChatRoom.js';
 // Create Chat Room
 export const createRoom = async (req, res) => {
   try {
-    const { name } = req.body;
-    const room = new ChatRoom({ name, creator: req.user.id, members: [req.user.id] });
+    const { name, creator, members} = req.body;
+    const room = new ChatRoom({ name, creator, members });
     await room.save();
 
     res.status(201).json({ message: 'Room created successfully', room });
@@ -32,10 +32,34 @@ export const deleteRoom = async (req, res) => {
   }
 };
 
+
+export const joinRoom = async (req, res) => {
+  try {
+    const { roomId } = req.body;
+    const userId = req.user.id;
+
+    // Find the room
+    const room = await ChatRoom.findById(roomId);
+    if (!room) {
+      return res.status(404).json({ error: "Room not found" });
+    }
+
+    // Check if user is already a member
+    if (!room.members.includes(userId)) {
+      room.members.push(userId);
+      await room.save();
+    }
+
+    res.status(200).json({ message: "Joined room successfully", room });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get All Rooms
 export const getAllRooms = async (req, res) => {
   try {
-    const rooms = await ChatRoom.find().populate('creator', 'username').populate('members', 'username');
+    const rooms = await ChatRoom.find().select('creator').populate('members', 'username');
     res.json(rooms);
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -1,15 +1,12 @@
 import { jwtDecode } from "jwt-decode";
+import Cookies from 'universal-cookie';
 
 // Function to decode the JWT from cookies
 export const getDecodedToken = () => {
-    const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("jwt="))
-        ?.split("=")[1];
-
-    if (token) {
-        return jwtDecode(token);
-        console.log(jwtDecode(token));
-    }
+    const cookies = new Cookies
+    const token = cookies.get("token");
+        if (token) {
+            return jwtDecode(token);
+        }
     return null; // No token found
 };

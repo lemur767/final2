@@ -7,7 +7,7 @@ const SECRET = process.env.JWT_SECRET || 'bYjEzNTI0NzY0MTQzMTM'
 // User Signup
 export const signup = async (req, res) => {
   try {
-    const { firstname, lastname, email, username, password, imageUrl } = req.body;
+    const { firstName, lastName, email, username, password, imageURL } = req.body;
 
     // Check for duplicate email or username
     const existingEmail = await User.findOne({ email });
@@ -15,9 +15,9 @@ export const signup = async (req, res) => {
     if (existingEmail) return res.status(400).json({ error: 'Email already registered' });
     if (existingUsername) return res.status(400).json({ error: 'Username already taken' });
 
-    const user = new User({ firstname, lastname, email, username, password, imageUrl });
+    const user = new User({ firstName, lastName, email, username, password, imageURL });
     await user.save();
-    const token = jwt.sign({ id: user._id, username: user.username }, SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id, username: user.username, email: user.email, firstname: firstName, lastname: lastName }, SECRET, { expiresIn: '1h' });
 
     res.status(201).json({ message: 'User registered successfully!', token});
   } catch (err) {
@@ -47,7 +47,7 @@ export const login = async (req, res) => {
     );
 
     res.json({ token });
-    console.log(token);
+   
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
@@ -56,44 +56,47 @@ export const login = async (req, res) => {
 // Get User Profile
 export const getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password'); // Exclude password
+    const user = await User.findById(req.user.id).select('-password').populate("friends", "username email"); // Exclude password
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    res.json(user);
+    res.localStorage.setItem(user) = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      imageURL: user.imageURL,
+      friends: user.friends,
+      firstName: user.firstName,
+      lastName: user.lastName,
+
+    };
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
 };
 
-export const updateProfile = async (request, response) => {
-    try {
-        const { userId } = request;
-        const { firstName, lastName, color } = request.body;
-        if(!firstName || !lastName || !color){
-            return response.status(400).send("All fields are required");
-        }
-        const user = await User.findByIdAndUpdate(userId,{
-            firstName,
-            lastName,
-            color,
-            profileSetup: true,
-        }, {new: true,runValidators: true});
-    
-        return response.status(200).json({
-            id: user.id,
-            username: user.username,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            imageURL: user.imageURL,
-            profileSetup: user.profileSetup,
-            color: user.color,
-        });
-    } catch (error) {
-        console.error("Error updating profile:", error);
-        return response.status(500).json({ message: "Server error" });
-    }
+export const updateProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const { firstName, lastName, email, imageURL } = req.body;
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (email) user.email = email;
+    if (imageURL) user.imageURL = imageURL;
+
+    await user.save();
+    res.status(200).json({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      imageURL: user.imageURL,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
+
 export const addProfileImage = async (request, response) => {
     try {
         const { userId } = request;

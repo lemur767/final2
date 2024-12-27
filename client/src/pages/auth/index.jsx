@@ -8,8 +8,11 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { getDecodedToken } from "@/utils/auth";
 import { socket } from "@/utils/socket";
+import Cookies from 'universal-cookie';
+
 
 const Auth = () => {
+  const cookies = new Cookies;
   const navigate = useNavigate();
 
   const [user, setUser] = useState("");
@@ -56,16 +59,15 @@ const Auth = () => {
         if (response.status === 200) {
           const token = response.data.token;
     
-          // Store token in localStorage
-          localStorage.setItem('token', token);
+     
+          cookies.set('token', token);
           //Decode Token for user info
           const decodedToken = getDecodedToken(token);
-          setUser(decodedToken);
-         
-          console.log("Decoded Token:", decodedToken);
-         
+          // Store user info in localStorage
+          localStorage.setItem('user', JSON.stringify(decodedToken));
+        
           // Emit user online event
-          socket.emit('user-online', response.data.user, {
+          socket.emit('user-online', decodedToken, {
             id: user.id,
             username: user.username,
             email: user.email,
@@ -73,10 +75,6 @@ const Auth = () => {
           }
           )
           console.log(user.id);
-        
-              
-    
-          // Navigate to another page
           navigate("/chat");
           toast.success("Login successful!");
         } else {
@@ -125,7 +123,7 @@ const Auth = () => {
         <div className="flex flex-col gap-10 items-center justify-center md:flex-row shrink-0 sm:flex-row ">
           <div className="flex items-center justify-center flex-grow-1 h-fit flex-col w-[100%]">
             <div className="flex items-center justify-center flex-col gap-10 p-4">
-              <div className="flex items-center flex-row gap-4 justifty-center">
+              <div className="flex items-center flex-row gap-4 justifty-center ">
                 <img src="/logo_small.png" alt="icon" className="w-10 h-10" />
               <h1 className="text-5xl font-title font-bold md:text-6xl">Welcome</h1>
 </div>
@@ -177,7 +175,7 @@ const Auth = () => {
                     onChange={(e) => setPassword(e.target.value)}
                   />
                   <button
-                    className="bg-[#7dca9b] text-white rounded-full p-6 w-100%"
+                    className="bg-[#7dca9b] text-[#1d1528] rounded-full p-6 w-100%"
                     onClick={handleLogin}
                   >
                     Login
@@ -244,7 +242,7 @@ const Auth = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
                   <button
-                    className="bg-[#7dca9b] text-white rounded-full p-6 w-100%"
+                    className="bg-[#7dca9b] text-[#1d1528] rounded-full p-6 w-100%"
                     onClick={handleSignup}
                   >
                     SignUp
@@ -256,9 +254,11 @@ const Auth = () => {
           </div>
         </div> 
       </div> 
-      <div className="bg-[#1d1528] flex flex-col items-center justify-center h-screen"></div>
-      <div className="w-[90vw] flex flex-grow-1 bg-center bg-cover h-screen bg-no-repeat" style={{ backgroundImage: 'url("/logo_large.png")' }}>
-      
+      <div className="bg-[#1d1528] flex flex-col items-center justify-center h-screen "></div>
+      <div className="w-[90vw] flex flex-grow-1 bg-center bg-cover h-screen bg-no-repeat">
+        <div className="p-2 flex flex-grow-1 items-center justify-center h-fit ">
+          <img src='logo_large.png' alt="login logo" width="75%" height="75%" />
+          </div>     
       </div>
     </div>
   );
